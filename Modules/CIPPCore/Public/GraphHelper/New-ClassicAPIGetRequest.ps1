@@ -1,6 +1,9 @@
 
 function New-ClassicAPIGetRequest($TenantID, $Uri, $Method = 'GET', $Resource = 'https://admin.microsoft.com', $ContentType = 'application/json') {
-
+    <#
+    .FUNCTIONALITY
+    Internal
+    #>
     if ((Get-AuthorisedRequest -Uri $uri -TenantID $tenantid)) {
         $token = Get-ClassicAPIToken -Tenant $tenantID -Resource $Resource
 
@@ -15,11 +18,11 @@ function New-ClassicAPIGetRequest($TenantID, $Uri, $Method = 'GET', $Resource = 
                     'X-Requested-With'       = 'XMLHttpRequest'
                 }
                 $Data
-                if ($noPagination) { $nextURL = $null } else { $nextURL = $data.NextLink }
+                if ($noPagination -or $null -eq $data.NextLink) { $nextURL = $null } else { $nextURL = $data.NextLink }
             } catch {
                 throw "Failed to make Classic Get Request $_"
             }
-        } until ($null -eq $NextURL)
+        } until ($null -eq $NextURL -or ' ' -eq $NextURL)
         return $ReturnedData
     } else {
         Write-Error 'Not allowed. You cannot manage your own tenant or tenants not under your scope'
